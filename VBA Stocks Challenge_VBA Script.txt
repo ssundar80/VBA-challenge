@@ -1,0 +1,89 @@
+
+Sub StockData()
+
+Dim pctchg As Double
+Dim intprice As Double
+Dim closeprice As Double
+Dim yearchg As Double
+Dim row As Long
+Dim volume As LongPtr
+Dim summaryRowCount As Integer
+intprice = Range("F2").Value
+yearchg = 0
+volume = 0
+summaryRowCount = 2
+
+'Loop through column A
+For row = 2 To Range("A2").End(xlDown).row
+'Add up all the volume in Column G into a counter variable
+volume = volume + Cells(row, 7).Value
+'If the next row is not equal to the current row reset the stockTicker counter, copy the stock ticker symbol of the current row to the Stock Ticker table, print Yearly Change, print Percentage Change, and print the volume for that stock in the column next to the Stock Ticker table
+If Cells(row, 1).Value <> Cells(row + 1, 1).Value Then
+'Print the stock symbol to column 9
+Cells(summaryRowCount, 9) = Cells(row, 1).Value
+'Print the total stock volume to column 12
+Cells(summaryRowCount, 12) = volume
+'Calculate the annual initial Open Price minus last Closing price
+closeprice = Cells(row, 6).Value
+yearchg = closeprice - intprice
+'Print the Yearly Change to Column J
+Cells(summaryRowCount, 10) = yearchg
+'Calculate the the Percentage Change
+If intprice = 0 Then
+pctchg = 0
+Else
+pctchg = yearchg / intprice
+End If
+
+Cells(summaryRowCount, 11) = pctchg
+'I had a hard time getting Percentage Change, I keep on getting overflow, even though my initial price cells do not contain a "0"
+summaryRowCount = summaryRowCount + 1
+volume = 0
+intprice = Cells(row + 1, 3).Value
+End If
+
+Next row
+
+
+End Sub
+Sub MaxVol()
+'
+' MaxVol Macro
+'
+
+'
+    Range("Q5").Select
+    ActiveCell.FormulaR1C1 = "=MAX(R[-3]C[-5]:R[191]C[-5])"
+    Range("R5").Select
+End Sub
+
+Sub MaxPctIncrease()
+'
+' MaxPctIncrease Macro
+'
+
+'
+    Range("Q3").Select
+    ActiveCell.FormulaR1C1 = "=MAX(C[-6])"
+    Range("R3").Select
+End Sub
+Sub MinPctDecrease()
+'
+' MinPctDecrease Macro
+'
+
+'
+    Range("Q4").Select
+    ActiveCell.FormulaR1C1 = "=MIN(C[-6])"
+End Sub
+Sub Dosomething()
+    Dim xSh As Worksheet
+    Application.ScreenUpdating = False
+    For Each xSh In Worksheets
+        xSh.Select
+        Call StockData
+        Call MaxVol
+        Call MaxPctIncrease
+    Next
+    Application.ScreenUpdating = True
+End Sub
